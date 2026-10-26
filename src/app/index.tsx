@@ -1,98 +1,258 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from "react";
+import { Button, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+const DAFTAR_MENU = [
+  { id: "1", nama: "Kopi Susu Catnip Cafe", harga: 20000 },
+  { id: "2", nama: "Matcha Paw Latte", harga: 25000 },
+  { id: "3", nama: "Croissant Ikan Tuna", harga: 18000 },
+];
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+function OrderSummary({ totalCount }: { totalCount: number }) {
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <View style={styles.ringkasan}>
+      <Text style={styles.iconKucing}>🐈‍⬛</Text>
+
+      <Text style={styles.labelRingkasan}>YOUR ORDER</Text>
+
+      <Text style={styles.total}>Total Item Dipesan: {totalCount}</Text>
+
+      {totalCount >= 5 && (
+        <Text style={styles.promo}>dapat diskon 10% nih, buruan checkout!</Text>
+      )}
+    </View>
+  );
+}
+
+function MenuItem({
+  nama,
+  harga,
+  onTambahPesanan,
+}: {
+  nama: string;
+  harga: number;
+  onTambahPesanan: () => void;
+}) {
+  const [qty, setQty] = useState(0);
+
+  function tambahPesanan() {
+    setQty(qty + 1);
+    onTambahPesanan();
+  }
+
+  return (
+    <View style={styles.kartu}>
+      <View style={styles.menuHeader}>
+        <Text style={styles.menuIcon}>🐈‍⬛</Text>
+
+        <View style={styles.menuInfo}>
+          <Text style={styles.nama}>{nama}</Text>
+
+          <Text style={styles.harga}>Rp{harga.toLocaleString("id-ID")}</Text>
+        </View>
+      </View>
+
+      <View style={styles.garis} />
+
+      <Text style={styles.jumlah}>Jumlah dipesan: {qty}</Text>
+
+      <Button title="Tambah Pesanan" onPress={tambahPesanan} color="#7656A8" />
+    </View>
   );
 }
 
 export default function HomeScreen() {
+  const [totalPesanan, setTotalPesanan] = useState(0);
+
+  function tambahTotalPesanan() {
+    setTotalPesanan(totalPesanan + 1);
+  }
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <ScrollView style={styles.container} contentContainerStyle={styles.isi}>
+      <View style={styles.headerArea}>
+        <Text style={styles.header}>KAFE KUCING</Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <Text style={styles.headerKecil}>☾ C A F E ☽</Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <Text style={styles.subjudul}>Where Every Sip Has a Little Magic</Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        <Text style={styles.kucingBesar}>🐈‍⬛</Text>
+      </View>
+
+      <OrderSummary totalCount={totalPesanan} />
+
+      <Text style={styles.judul}>OUR MENU</Text>
+
+      <Text style={styles.deskripsi}>Pilihan spesial dari Kafe Kucing</Text>
+
+      {DAFTAR_MENU.map((menu) => (
+        <MenuItem
+          key={menu.id}
+          nama={menu.nama}
+          harga={menu.harga}
+          onTambahPesanan={tambahTotalPesanan}
+        />
+      ))}
+
+      <Text style={styles.footer}> THANK YOU FOR VISITING </Text>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    backgroundColor: "#111014",
   },
-  safeArea: {
+
+  isi: {
+    padding: 20,
+    paddingTop: 45,
+    paddingBottom: 35,
+  },
+
+  headerArea: {
+    alignItems: "center",
+    backgroundColor: "#1D1A24",
+    padding: 25,
+    borderRadius: 20,
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: "#514166",
+  },
+
+  header: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    textAlign: "center",
+    letterSpacing: 3,
+  },
+
+  headerKecil: {
+    fontSize: 19,
+    color: "#B69AE0",
+    marginTop: 5,
+    fontWeight: "bold",
+  },
+
+  subjudul: {
+    textAlign: "center",
+    color: "#BDB8C7",
+    marginTop: 12,
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+
+  kucingBesar: {
+    fontSize: 65,
+    marginTop: 15,
+  },
+
+  ringkasan: {
+    backgroundColor: "#25212E",
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: "#7656A8",
+  },
+
+  iconKucing: {
+    fontSize: 30,
+    marginBottom: 5,
+  },
+
+  labelRingkasan: {
+    color: "#B69AE0",
+    fontSize: 12,
+    fontWeight: "bold",
+    letterSpacing: 3,
+    marginBottom: 10,
+  },
+
+  total: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
+
+  promo: {
+    color: "#C6A6FF",
+    fontWeight: "bold",
+    marginTop: 12,
+    lineHeight: 22,
+  },
+
+  judul: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 5,
+    letterSpacing: 2,
+  },
+
+  deskripsi: {
+    fontSize: 13,
+    color: "#A9A3B2",
+    marginBottom: 18,
+  },
+
+  kartu: {
+    backgroundColor: "#211E28",
+    padding: 17,
+    borderRadius: 15,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#393244",
+    gap: 10,
+  },
+
+  menuHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  menuIcon: {
+    fontSize: 35,
+  },
+
+  menuInfo: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+
+  nama: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
-  title: {
-    textAlign: 'center',
+
+  harga: {
+    fontSize: 15,
+    color: "#C1A3F0",
+    marginTop: 5,
+    fontWeight: "bold",
   },
-  code: {
-    textTransform: 'uppercase',
+
+  garis: {
+    height: 1,
+    backgroundColor: "#393244",
+    marginVertical: 3,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  jumlah: {
+    marginBottom: 5,
+    color: "#C4BECC",
+    fontSize: 14,
+  },
+
+  footer: {
+    textAlign: "center",
+    color: "#A78BCF",
+    fontSize: 12,
+    fontWeight: "bold",
+    marginTop: 15,
+    letterSpacing: 2,
   },
 });
